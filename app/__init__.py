@@ -98,3 +98,5 @@ def create_app(config_name='default'):
             print(f'Scheduler failed to start: {e}')
 
     return app
+
+app = create_app()
