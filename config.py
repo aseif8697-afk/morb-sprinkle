@@ -6,6 +6,9 @@ class Config:
     db_url = os.environ.get('DATABASE_URL', 'sqlite:///ELKING_sms.db')
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
+    # Vercel has a read-only filesystem except /tmp: keep relative SQLite files there
+    if os.environ.get('VERCEL') and db_url.startswith('sqlite:///') and not db_url.startswith('sqlite:////') and db_url != 'sqlite:///:memory:':
+        db_url = 'sqlite:////tmp/' + db_url[len('sqlite:///'):]
     SQLALCHEMY_DATABASE_URI = db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
