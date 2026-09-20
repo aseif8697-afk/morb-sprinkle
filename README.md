@@ -1,2 +1,1 @@
-# morb-sprinkle
-.. 
+# Power-SMS-panel
