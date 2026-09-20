@@ -23,6 +23,12 @@ def create_app(config_name='default'):
     flask_app = Flask(__name__)
     flask_app.config.from_object(config[config_name])
 
+    # Vercel's filesystem is read-only except /tmp: move the instance folder
+    # there so Flask-SQLAlchemy can create it without OSError.
+    if os.environ.get('VERCEL'):
+        flask_app.instance_path = os.path.join('/tmp', 'instance')
+        os.makedirs(flask_app.instance_path, exist_ok=True)
+
     db.init_app(flask_app)
     login_manager.init_app(flask_app)
     bcrypt.init_app(flask_app)
