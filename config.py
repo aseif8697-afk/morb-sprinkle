@@ -1,0 +1,41 @@
+import os
+from datetime import timedelta
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'morb-sms-secret-key-2024'
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///morb_sms.db')
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    # Vercel has a read-only filesystem except /tmp: keep relative SQLite files there
+    if os.environ.get('VERCEL') and db_url.startswith('sqlite:///') and not db_url.startswith('sqlite:////') and db_url != 'sqlite:///:memory:':
+        db_url = 'sqlite:////tmp/' + db_url[len('sqlite:///'):]
+    SQLALCHEMY_DATABASE_URI = db_url
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    WTF_CSRF_ENABLED = True
+    WTF_CSRF_TIME_LIMIT = 3600
+    LOGIN_ATTEMPT_LIMIT = 5
+    LOGIN_ATTEMPT_WINDOW = 300
+    CAPTCHA_ENABLED = True
+    ITEMS_PER_PAGE = 25
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+class ProductionConfig(Config):
+    DEBUG = False
+    SESSION_COOKIE_SECURE = True
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig
+}
