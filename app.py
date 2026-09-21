@@ -20,7 +20,12 @@ bcrypt = Bcrypt()
 
 
 def create_app(config_name='default'):
-    flask_app = Flask(__name__)
+    base_dir = Path(__file__).resolve().parent
+    flask_app = Flask(
+        __name__,
+        template_folder=str(base_dir / 'app' / 'templates'),
+        static_folder=str(base_dir / 'app' / 'static'),
+    )
     flask_app.config.from_object(config[config_name])
 
     # Vercel's filesystem is read-only except /tmp: move the instance folder
